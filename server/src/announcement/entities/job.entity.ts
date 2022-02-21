@@ -1,12 +1,12 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import AnnouncementJob from './announcement-job.entity';
+import AnnouncementJob from './announcementJob.entity';
 
 @Entity()
 class Job {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({ unique: true })
   public name: string;
 
   @OneToMany(

@@ -1,5 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import AnnouncementJob from './announcement-job.entity';
+import AnnouncementJob from './announcementJob.entity';
 
 export enum EmployType {
   NON_REGULAR = 'NON_REGULAR',
@@ -11,27 +12,35 @@ class Announcement {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({ type: 'timestamp' })
-  public createAt: string;
+  @ApiProperty({ description: '생성 시간' })
+  @Column({ type: Date })
+  public createAt: Date;
 
+  @ApiProperty({ description: '회사명' })
   @Column()
   public companyName: string;
 
-  @Column({ type: 'timestamp' })
-  public dueDate: string;
+  @ApiProperty({ description: '공고 마감일' })
+  @Column({ type: Date })
+  public dueDate: Date;
 
-  @Column({ default: null, nullable: true })
+  @ApiProperty({ description: '경력', type: Number, minimum: 0 })
+  @Column()
   public career?: number;
 
+  @ApiProperty({ description: `"NON_REGULAR" or "REGULAR"` })
   @Column({ type: 'enum', enum: EmployType })
   public employType: EmployType;
 
+  @ApiProperty({ description: `주소` })
   @Column()
   public location: string;
 
+  @ApiProperty({ description: `위도` })
   @Column({ type: 'numeric' })
   public latitude: number;
 
+  @ApiProperty({ description: `경도` })
   @Column({ type: 'numeric' })
   public longitude: number;
 
