@@ -1,17 +1,17 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class Job {
+class Announcement {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   public createAt: string;
 
   @Column()
   public companyName: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   public dueDate: string;
 
   @Column({ default: null, nullable: true })
@@ -26,4 +26,4 @@ class Job {
   latitude: number;
 }
 
-export default Job;
+export default Announcement;
