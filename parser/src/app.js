@@ -1,5 +1,4 @@
-const express = require("express");
+const datas = require("./fileReader");
+const transformer = require("./transformer");
 
-const app = express();
-
-module.exports = app;
+transformer(datas);

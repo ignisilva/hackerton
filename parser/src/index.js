@@ -1,5 +1,4 @@
-require("./fileReader");
-// const app = require("./app");
+require("./app");
 
 // const PORT = process.env.PORT || 4000;
 
