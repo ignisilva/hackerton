@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import AnnouncementJob from './announcement-job.entity';
 
 @Entity()
 class Job {
@@ -7,6 +8,12 @@ class Job {
 
   @Column()
   public name: string;
+
+  @OneToMany(
+    (type) => AnnouncementJob,
+    (announcementJob) => announcementJob.announcement,
+  )
+  announcements: AnnouncementJob[];
 }
 
 export default Job;

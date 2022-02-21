@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import AnnouncementJob from './announcement-job.entity';
+
+export enum EmployType {
+  NON_REGULAR = 'NON_REGULAR',
+  REGULAR = 'REGULAR',
+}
 
 @Entity()
 class Announcement {
@@ -17,13 +23,23 @@ class Announcement {
   @Column({ default: null, nullable: true })
   public career?: number;
 
-  @Column()
-  public employType: string;
+  @Column({ type: 'enum', enum: EmployType })
+  public employType: EmployType;
 
   @Column()
   public location: string;
 
-  latitude: number;
+  @Column({ type: 'numeric' })
+  public latitude: number;
+
+  @Column({ type: 'numeric' })
+  public longitude: number;
+
+  @OneToMany(
+    (type) => AnnouncementJob,
+    (announcementJob) => announcementJob.announcement,
+  )
+  jobs: AnnouncementJob[];
 }
 
 export default Announcement;
