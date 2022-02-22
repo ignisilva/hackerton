@@ -14,7 +14,7 @@ class Announcement {
 
   @ApiProperty({ description: '생성 시간' })
   @Column({ type: Date })
-  public createAt: Date;
+  public createdAt: Date;
 
   @ApiProperty({ description: '회사명' })
   @Column()

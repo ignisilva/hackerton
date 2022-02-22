@@ -3,7 +3,7 @@ import { Core } from 'src/common/entities/core.entity';
 import Announcement from '../entities/announcement.entity';
 
 export class CreateAnnouncementInput extends PickType(Announcement, [
-  'createAt',
+  'createdAt',
   'companyName',
   'dueDate',
   'career',

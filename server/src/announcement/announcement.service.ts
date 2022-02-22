@@ -35,7 +35,7 @@ export class AnnouncementService {
   // 'longitude',
   // 'jobs'
   async createAnnouncement({
-    createAt,
+    createdAt,
     companyName,
     dueDate,
     career,
@@ -52,7 +52,7 @@ export class AnnouncementService {
     try {
       const announcement = await this.announcementRepo.save(
         this.announcementRepo.create({
-          createAt,
+          createdAt,
           companyName,
           dueDate,
           career,
