@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import AnnouncementJob from './announcementJob.entity';
+import AnnouncementJob from './announcement-job.entity';
 
 export enum EmployType {
   NON_REGULAR = 'NON_REGULAR',

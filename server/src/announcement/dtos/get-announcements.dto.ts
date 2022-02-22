@@ -1,6 +1,7 @@
-import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { number } from 'joi';
 import { Core } from 'src/common/entities/core.entity';
-import Announcement, { EmployType } from '../entities/announcement.entity';
+import { EmployType } from '../entities/announcement.entity';
 
 interface IAnnouncement {
   id: number;
@@ -19,9 +20,13 @@ export class GetAnnouncementsQuery {
   locationInfo: string;
   job: string;
   career: string;
+  local: string;
 }
 
 export class GetAnnouncementsOutput extends PickType(Core, ['error', 'ok']) {
   @ApiPropertyOptional()
   announcements?: IAnnouncement[];
+
+  @ApiPropertyOptional()
+  localGrade?: number;
 }

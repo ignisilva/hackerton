@@ -9,11 +9,11 @@ import { AnnouncementService } from './announcement.service';
 import {
   CreateAnnouncementInput,
   CreateAnnouncementOutput,
-} from './dtos/createAnnouncement.dto';
+} from './dtos/create-announcement.dto';
 import {
   GetAnnouncementsOutput,
   GetAnnouncementsQuery,
-} from './dtos/getAnnouncements.dto';
+} from './dtos/get-announcements.dto';
 
 @ApiTags('공고 API')
 @Controller('v1/announcement')
@@ -53,12 +53,17 @@ export class AnnouncementController {
   })
   @ApiQuery({
     name: 'locationInfo',
-    description: '"LT, RT, RD, LD"로 이뤄진 단일 string값',
+    description: '"LTX LTY RTX RTY RDX RDY LDX LDY"로 이뤄진 단일 string값',
+  })
+  @ApiQuery({
+    name: 'local',
+    description: '구',
   })
   @Get()
   getAnnouncements(
     @Query() querys: GetAnnouncementsQuery,
   ): Promise<GetAnnouncementsOutput> {
+    console.log('check!');
     return this.announcementService.getAnnouncements(querys);
   }
 }

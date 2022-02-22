@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getManager, Repository } from 'typeorm';
-import AnnouncementJob from './entities/announcementJob.entity';
+import AnnouncementJob from './entities/announcement-job.entity';
 import Announcement from './entities/announcement.entity';
 import Job from './entities/job.entity';
 import {
   CreateAnnouncementInput,
   CreateAnnouncementOutput,
-} from './dtos/createAnnouncement.dto';
+} from './dtos/create-announcement.dto';
 import {
   GetAnnouncementsOutput,
   GetAnnouncementsQuery,
-} from './dtos/getAnnouncements.dto';
+} from './dtos/get-announcements.dto';
+import { LocalGradeService } from 'src/local-grade/local-grade.service';
 
 @Injectable()
 export class AnnouncementService {
@@ -26,6 +27,8 @@ export class AnnouncementService {
 
     @InjectRepository(AnnouncementJob)
     private readonly announcementJobRepo: Repository<AnnouncementJob>,
+
+    private readonly localGradeService: LocalGradeService,
   ) {}
 
   async createAnnouncement({
@@ -105,20 +108,24 @@ export class AnnouncementService {
     locationInfo,
     job: jobName,
     career,
+    local,
   }: GetAnnouncementsQuery): Promise<GetAnnouncementsOutput> {
     try {
+      console.log('save');
       const [ltX, ltY, rtX, rtY, rdX, rdY, ldX, ldY] = locationInfo
         .split(' ')
         .map((v) => Number(v));
 
+      console.log('save2');
       const entityManager = getManager();
       const result = await entityManager.query(
         `
-        select * from (select * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T2 where career >= $5
+        select * from (select DISTINCT ON ("companyName") * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T where (career >= $5) AND ("dueDate" >= now()) order by "dueDate" LIMIT 50
       `,
         [ldX, ltX, ltY, rtY, Number(career)],
       );
 
+      console.log('save3');
       let announcements = [];
       for (let i = 0; i < result.length; i++) {
         const announcement = {
@@ -128,9 +135,19 @@ export class AnnouncementService {
         announcements.push(announcement);
       }
 
+      console.log('save4');
+
+      const { grade: localGrade } = await this.localGradeService.getLocalGrade(
+        local,
+      );
+      if (!localGrade) {
+        throw Error('The local grade NotFound');
+      }
+
       return {
         ok: true,
         announcements,
+        localGrade,
       };
     } catch (error) {
       return;

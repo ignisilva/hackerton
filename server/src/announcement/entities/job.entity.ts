@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import AnnouncementJob from './announcementJob.entity';
+import AnnouncementJob from './announcement-job.entity';
 
 @Entity()
 class Job {

@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AnnouncementModule } from './announcement/announcement.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { LocalGradeModule } from './local-grade/local-grade.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -20,6 +21,7 @@ import * as Joi from 'joi';
     }),
     AnnouncementModule,
     DatabaseModule,
+    LocalGradeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
