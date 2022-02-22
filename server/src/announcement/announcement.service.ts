@@ -111,43 +111,44 @@ export class AnnouncementService {
     local,
   }: GetAnnouncementsQuery): Promise<GetAnnouncementsOutput> {
     try {
-      console.log('save');
       const [ltX, ltY, rtX, rtY, rdX, rdY, ldX, ldY] = locationInfo
         .split(' ')
         .map((v) => Number(v));
 
-      console.log('save2');
       const entityManager = getManager();
-      const result = await entityManager.query(
+      const results: Announcement[] = await entityManager.query(
         `
         select * from (select DISTINCT ON ("companyName") * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T where (career >= $5) AND ("dueDate" >= now()) order by "dueDate" LIMIT 50
       `,
         [ldX, ltX, ltY, rtY, Number(career)],
       );
 
-      console.log('save3');
       let announcements = [];
-      for (let i = 0; i < result.length; i++) {
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const localName = result.location
+          .split(' ')
+          .filter((v) => v.includes('구'))[0];
+
+        const { grade: localGrade } =
+          await this.localGradeService.getLocalGrade(
+            localName ? localName : local,
+          );
+        if (!localGrade) {
+          throw Error('The local grade NotFound');
+        }
+
         const announcement = {
-          ...result[i],
+          ...results[i],
           job: [jobName],
+          localGrade,
         };
         announcements.push(announcement);
-      }
-
-      console.log('save4');
-
-      const { grade: localGrade } = await this.localGradeService.getLocalGrade(
-        local,
-      );
-      if (!localGrade) {
-        throw Error('The local grade NotFound');
       }
 
       return {
         ok: true,
         announcements,
-        localGrade,
       };
     } catch (error) {
       return;

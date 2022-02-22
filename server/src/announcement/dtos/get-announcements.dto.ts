@@ -14,6 +14,7 @@ interface IAnnouncement {
   latitude: number;
   longitude: number;
   jobs: string[];
+  localGrade: number;
 }
 
 export class GetAnnouncementsQuery {
@@ -26,7 +27,4 @@ export class GetAnnouncementsQuery {
 export class GetAnnouncementsOutput extends PickType(Core, ['error', 'ok']) {
   @ApiPropertyOptional()
   announcements?: IAnnouncement[];
-
-  @ApiPropertyOptional()
-  localGrade?: number;
 }

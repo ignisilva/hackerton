@@ -63,7 +63,6 @@ export class AnnouncementController {
   getAnnouncements(
     @Query() querys: GetAnnouncementsQuery,
   ): Promise<GetAnnouncementsOutput> {
-    console.log('check!');
     return this.announcementService.getAnnouncements(querys);
   }
 }
