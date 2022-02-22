@@ -33,9 +33,9 @@ class Restaurant {
   @Column({ type: 'numeric' })
   public longitude: number;
 
-  @OneToOne((type) => LocalGrade, { onDelete: 'SET NULL' })
-  @JoinColumn()
-  localGrade: LocalGrade;
+  @ApiProperty({ description: '소속구' })
+  @Column()
+  local: string;
 }
 
 export default Restaurant;

@@ -61,7 +61,9 @@ export class AnnouncementController {
     description: '구',
   })
   @Get()
-  getAnnouncements(@Query() querys: GetAnnouncementsQuery) {
+  getAnnouncements(
+    @Query() querys: GetAnnouncementsQuery,
+  ): Promise<GetAnnouncementsOutput> {
     return this.announcementService.getAnnouncements(querys);
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LocalGradeService } from 'src/local-grade/local-grade.service';
-import { Repository } from 'typeorm';
+import { getManager, Repository } from 'typeorm';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -17,8 +17,6 @@ export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurantRepo: Repository<Restaurant>,
-
-    private readonly localGradeService: LocalGradeService,
   ) {}
 
   async createRestaurant({
@@ -30,7 +28,6 @@ export class RestaurantService {
     local,
   }: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
     try {
-      const localGrade = await this.localGradeService.getLocalGrade(local);
       await this.restaurantRepo.save(
         this.restaurantRepo.create({
           name,
@@ -38,7 +35,7 @@ export class RestaurantService {
           kindOf,
           latitude,
           longitude,
-          localGrade,
+          local,
         }),
       );
 
@@ -47,7 +44,7 @@ export class RestaurantService {
       };
     } catch (error) {
       return {
-        ok: true,
+        ok: false,
         error,
       };
     }
@@ -57,8 +54,20 @@ export class RestaurantService {
     locationInfo,
   }: GetRestaurantsQuery): Promise<GetRestaurantsOutput> {
     try {
+      const [ltX, ltY, rtX, rtY, rdX, rdY, ldX, ldY] = locationInfo
+        .split(' ')
+        .map((v) => Number(v));
+
+      const entityManager = getManager();
+      const restaurants: Restaurant[] = await entityManager.query(
+        `
+        select * from restaurant where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4) LIMIT 50
+      `,
+        [ldX, ltX, ltY, rtY],
+      );
       return {
         ok: true,
+        restaurants,
       };
     } catch (error) {
       return {
