@@ -1,31 +1,6 @@
-const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=${process.env.GCP_API_KEY}`;
+const axios = require("axios");
 
-const { Client } = require("@googlemaps/google-maps-services-js");
-
-async function getGeoData(address) {
-  const geocodingClient = new Client({});
-  let param = {
-    address,
-    components: "country:KR",
-    key: process.env.GOOGLE_MAPS_API_KEY,
-  };
-
-  geocodingClient
-    .geocode({
-      params,
-    })
-    .then((res) => {
-      console.log("status: " + Response.data.status);
-      console.log(response.data.results[0].geometry.location.lat);
-      console.log(response.data.results[0].geometry.location.lng);
-      return res;
-    })
-    .catch((error) => {
-      console.log("error: " + error);
-    });
-}
-
-const transformer = async (datas) => {
+const transformer = (datas) => {
   try {
     let newDatas = [];
 
@@ -43,26 +18,59 @@ const transformer = async (datas) => {
 
       const [date, time] = String(oldCreatedAt)
         .split(" ")
-        .map((v, i) => (i === 0 ? v.replace(".", "-") : `T${v}.000Z`));
+        .map((v, i) => (i === 0 ? v.replaceAll(".", "-") : `T${v}.000Z`));
 
-      await getGeoData(location);
+      const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURI(
+        location.replaceAll(" ", "+")
+      )}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
-      const newData = {
-        createdAt: date + time,
-        companyName,
-        dueDate: oldDueDate.replace(".", "-") + "T00:00:00.000Z",
-        career:
-          oldCareer === "경력무관" ? 0 : Number(oldCareer.split("년 이상")[0]),
-        employType: oldEmployType === "정규직" ? "REGULAR" : "NON_REGULAR",
-        location,
-        jobs: oldJobs.split(", "),
+      const geoInfo = {
+        latitude: 0,
+        longitude: 0,
       };
 
-      console.log(newData);
+      setTimeout(() => {
+        axios.get(URL).then((res) => {
+          const geoLocation = res.data.results[0].geometry.location;
+          geoInfo.latitude = Number(Number(geoLocation.lat).toFixed(7));
+          geoInfo.longitude = Number(Number(geoLocation.lng).toFixed(7));
+
+          const serverURL = "http://[::1]:3000/v1/announcement";
+          const newData = {
+            createdAt: date + time,
+            companyName,
+            dueDate: oldDueDate.replaceAll(".", "-") + "T00:00:00.000Z",
+            career:
+              oldCareer === "경력무관"
+                ? 0
+                : Number(oldCareer.split("년 이상")[0]),
+            employType: oldEmployType === "정규직" ? "REGULAR" : "NON_REGULAR",
+            location,
+            latitude: geoInfo.latitude,
+            longitude: geoInfo.longitude,
+            jobs: oldJobs.split(", "),
+          };
+
+          setTimeout(() => {
+            console.log(newData);
+            axios
+              .post(serverURL, newData)
+              .then((res) => {
+                console.log("2res");
+                console.log(res.data);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }, 500);
+        });
+      }, 500);
     }
 
     return newDatas;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = transformer;
