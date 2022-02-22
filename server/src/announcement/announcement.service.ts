@@ -8,7 +8,6 @@ import {
   CreateAnnouncementInput,
   CreateAnnouncementOutput,
 } from './dtos/createAnnouncement.dto';
-import { first } from 'rxjs';
 
 @Injectable()
 export class AnnouncementService {
@@ -25,15 +24,6 @@ export class AnnouncementService {
     private readonly announcementJobRepo: Repository<AnnouncementJob>,
   ) {}
 
-  // 'createAt',
-  // 'companyName',
-  // 'dueDate',
-  // 'career',
-  // 'employType',
-  // 'location',
-  // 'latitude',
-  // 'longitude',
-  // 'jobs'
   async createAnnouncement({
     createdAt,
     companyName,
@@ -45,56 +35,65 @@ export class AnnouncementService {
     longitude,
     jobs,
   }: CreateAnnouncementInput): Promise<CreateAnnouncementOutput> {
+    let isOk = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const announcement = await this.announcementRepo.save(
-        this.announcementRepo.create({
-          createdAt,
-          companyName,
-          dueDate,
-          career,
-          employType,
-          location,
-          latitude,
-          longitude,
-        }),
-      );
+      const newAnnouncement = this.announcementRepo.create({
+        createdAt,
+        companyName,
+        dueDate,
+        career,
+        employType,
+        location,
+        latitude,
+        longitude,
+      });
+      const announcement = await queryRunner.manager.save(newAnnouncement);
 
       let newJobs = [];
       for (let i = 0; i < jobs.length; i++) {
         const jobName = jobs[i];
-        const foundJob = await this.jobRepo.findOne({ name: jobName });
+        const foundJob = await queryRunner.manager.findOne(Job, {
+          name: jobName,
+        });
         if (foundJob) {
           newJobs.push(foundJob);
           continue;
+        } else {
+          const newJob = this.jobRepo.create({ name: jobName });
+          const job = await queryRunner.manager.save(newJob);
+          newJobs.push(job);
         }
-        const newJob = await this.jobRepo.save(
-          this.jobRepo.create({ name: jobName }),
-        );
-        newJobs.push(newJob);
       }
 
       for (let i = 0; i < newJobs.length; i++) {
         const job = newJobs[i];
-        await this.announcementJobRepo.save(
-          this.announcementJobRepo.create({ announcement, job }),
-        );
+        const newAnnouncementJob = this.announcementJobRepo.create({
+          announcement,
+          job,
+        });
+        await queryRunner.manager.save(newAnnouncementJob);
       }
 
-      return {
-        ok: true,
-      };
+      await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return {
-        ok: false,
-        error,
-      };
+      isOk = false;
     } finally {
-      queryRunner.release();
+      await queryRunner.release();
+      if (isOk) {
+        return {
+          ok: true,
+        };
+      } else {
+        return {
+          ok: false,
+          error: 'something is wrong',
+        };
+      }
     }
   }
 }
