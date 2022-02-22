@@ -1,4 +1,8 @@
 const datas = require("./fileReader");
 const transformer = require("./transformer");
 
-transformer(datas);
+const app = async () => {
+  await transformer(datas);
+};
+
+app();
