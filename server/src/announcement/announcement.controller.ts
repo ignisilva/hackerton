@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -60,9 +61,7 @@ export class AnnouncementController {
     description: '구',
   })
   @Get()
-  getAnnouncements(
-    @Query() querys: GetAnnouncementsQuery,
-  ): Promise<GetAnnouncementsOutput> {
+  getAnnouncements(@Query() querys: GetAnnouncementsQuery) {
     return this.announcementService.getAnnouncements(querys);
   }
 }

@@ -1,5 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { number } from 'joi';
+import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Core } from 'src/common/entities/core.entity';
 import { EmployType } from '../entities/announcement.entity';
 

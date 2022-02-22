@@ -5,6 +5,7 @@ import { AnnouncementModule } from './announcement/announcement.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { LocalGradeModule } from './local-grade/local-grade.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -22,6 +23,7 @@ import * as Joi from 'joi';
     AnnouncementModule,
     DatabaseModule,
     LocalGradeModule,
+    RestaurantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
