@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, Repository } from 'typeorm';
+import { Connection, getManager, Repository } from 'typeorm';
 import AnnouncementJob from './entities/announcementJob.entity';
 import Announcement from './entities/announcement.entity';
 import Job from './entities/job.entity';
@@ -8,6 +8,10 @@ import {
   CreateAnnouncementInput,
   CreateAnnouncementOutput,
 } from './dtos/createAnnouncement.dto';
+import {
+  GetAnnouncementsOutput,
+  GetAnnouncementsQuery,
+} from './dtos/getAnnouncements.dto';
 
 @Injectable()
 export class AnnouncementService {
@@ -94,6 +98,42 @@ export class AnnouncementService {
           error: 'something is wrong',
         };
       }
+    }
+  }
+
+  async getAnnouncements({
+    locationInfo,
+    job: jobName,
+    career,
+  }: GetAnnouncementsQuery): Promise<GetAnnouncementsOutput> {
+    try {
+      const [ltX, ltY, rtX, rtY, rdX, rdY, ldX, ldY] = locationInfo
+        .split(' ')
+        .map((v) => Number(v));
+
+      const entityManager = getManager();
+      const result = await entityManager.query(
+        `
+        select * from (select * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T2 where career >= $5
+      `,
+        [ldX, ltX, ltY, rtY, Number(career)],
+      );
+
+      let announcements = [];
+      for (let i = 0; i < result.length; i++) {
+        const announcement = {
+          ...result[i],
+          job: [jobName],
+        };
+        announcements.push(announcement);
+      }
+
+      return {
+        ok: true,
+        announcements,
+      };
+    } catch (error) {
+      return;
     }
   }
 }
