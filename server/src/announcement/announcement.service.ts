@@ -118,7 +118,7 @@ export class AnnouncementService {
       const entityManager = getManager();
       const results: Announcement[] = await entityManager.query(
         `
-        select * from (select DISTINCT ON ("companyName") * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T where (career >= $5) AND ("dueDate" >= now()) order by "dueDate" LIMIT 50
+        select * from (select DISTINCT ON ("companyName") * from announcement where (latitude BETWEEN $1 AND $2) AND (longitude BETWEEN $3 AND $4)) as T where (career <= $5) AND ("dueDate" >= now()) order by "dueDate" LIMIT 50
       `,
         [ldX, ltX, ltY, rtY, Number(career)],
       );
